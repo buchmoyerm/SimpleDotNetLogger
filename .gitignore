@@ -45,6 +45,7 @@ obj\*
 # mercurial files #
 ###################
 .hg\*
+.hgignore
 
 # tfs tracking files #
 ######################
