@@ -36,3 +36,16 @@
 Icon?
 ehthumbs.db
 Thumbs.db
+
+# Folders that contain binaries #
+#################################
+bin\*
+obj\*
+
+# mercurial files #
+###################
+.hg\*
+
+# tfs tracking files #
+######################
+*.vspscc
