@@ -6,6 +6,7 @@ When built it should create a .dll that can be referenced and the logger can be 
 
 example c# use:
 
+```c#
 namespace MyApp
 {
 	public static int main (string[] args)
@@ -14,3 +15,4 @@ namespace MyApp
 		MyLogger.Log("Test log line");
 	}
 }
+```

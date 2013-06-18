@@ -46,6 +46,7 @@ obj\*
 ###################
 .hg\*
 .hgignore
+.hg\thgstatus
 
 # tfs tracking files #
 ######################
