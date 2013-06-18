@@ -41,10 +41,13 @@ Thumbs.db
 #################################
 bin\*
 obj\*
+bin/*
+obj/*
 
 # mercurial files #
 ###################
 .hg\*
+.hg/*
 .hgignore
 *thgstatus
 
