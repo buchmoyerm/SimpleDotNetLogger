@@ -9,10 +9,13 @@ example c# use:
 ```c#
 namespace MyApp
 {
-	public static int main (string[] args)
+	class Program
 	{
-		FileLog.Logger MyLogger = new FileLog.Logger("MyFile", "LogDir");
-		MyLogger.Log("Test log line");
+		public static int main (string[] args)
+		{
+			FileLog.Logger MyLogger = new FileLog.Logger("MyFile", "LogDir");
+			MyLogger.Log("Test log line");
+		}
 	}
 }
 ```
