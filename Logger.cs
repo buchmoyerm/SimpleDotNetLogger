@@ -97,6 +97,9 @@ namespace FileLog
         {
             if (_filewriter != null)
             {
+                _filewriter.WriteLine( "\r\n\r\n" ); //add some blank lines to the end
+                _filewriter.Flush(); //flush the writer before the next write
+
                 _filewriter.Close();
                 _filewriter = null;
             }
@@ -116,7 +119,7 @@ namespace FileLog
         {
             return
                 string.Format(
-                    "Exception: {0} \r\n\r\n Exception Message: {1} \r\n\r\n Source: {2} \r\n\r\n Stack: {3}",
+                    "Exception:\t{0}\r\n\tException Message:\t{1}\r\n\tSource:\t{2}\r\n\tStack:\t{3}\r\n",
                     ex.GetType(), ex.Message, ex.Source, ex.StackTrace);
         }
 
