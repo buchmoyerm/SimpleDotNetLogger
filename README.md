@@ -14,7 +14,19 @@ namespace MyApp
 		public static int main (string[] args)
 		{
 			FileLog.Logger MyLogger = new FileLog.Logger("MyFile", "LogDir");
-			MyLogger.Log("Test log line");
+			try
+			{
+				MyLogger.Log("Test log line");
+				
+				//should throw DivideByZeroException
+				int num1 = 3;
+				int num2 = 0;
+				int answer = num1 / num2;
+			}
+			catch (Exception ex)
+			{
+				MyLogger.Log("Error Caught", ex);
+			}
 		}
 	}
 }

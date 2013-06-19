@@ -25,6 +25,35 @@ namespace FileLog
             }
         }
 
+        [MethodImpl( MethodImplOptions.Synchronized )]
+        public void Log( string logline )
+        {
+            DateTime logTime = DateTime.Now;
+
+            if ( logTime.DayOfYear != CurrentStreamDay.DayOfYear || !IsOpen )
+            {
+                CloseWriter();
+                CreateNewWriter( null );
+            }
+
+            if ( IsOpen )
+            {
+                string line = string.Format( "{0:G}:\t{1}", logTime, logline );
+                _filewriter.WriteLine( line );
+                _filewriter.Flush(); //flush the writer before the next write
+            }
+        }
+
+        public void Log( Exception ex )
+        {
+            Log(ExceptionLogLine(ex));
+        }
+
+        public void Log( string line, Exception ex )
+        {
+            Log(line + " " + ExceptionLogLine(ex));
+        }
+
         private void CreateNewWriter(int? filenum)
         {
             CurrentStreamDay = DateTime.Now;
@@ -83,23 +112,12 @@ namespace FileLog
             get { return _filewriter != null; }
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public void Log(string logline)
+        private string ExceptionLogLine(Exception ex)
         {
-            DateTime logTime = DateTime.Now;
-
-            if (logTime.DayOfYear != CurrentStreamDay.DayOfYear || !IsOpen)
-            {
-                CloseWriter();
-                CreateNewWriter(null);
-            }
-
-            if (IsOpen)
-            {
-                string line = string.Format("{0:G}:\t{1}", logTime, logline);
-                _filewriter.WriteLine(line);
-                _filewriter.Flush(); //flush the writer before the next write
-            }
+            return
+                string.Format(
+                    "Exception: {0} \r\n\r\n Exception Message: {1} \r\n\r\n Source: {2} \r\n\r\n Stack: {3}",
+                    ex.GetType(), ex.Message, ex.Source, ex.StackTrace);
         }
 
         private StreamWriter _filewriter;
