@@ -25,6 +25,11 @@ namespace FileLog
             }
         }
 
+        public void Close()
+        {
+            CloseWriter();
+        }
+
         [MethodImpl( MethodImplOptions.Synchronized )]
         public void Log( string logline )
         {
@@ -93,9 +98,10 @@ namespace FileLog
             
         }
 
+        [MethodImpl( MethodImplOptions.Synchronized )]
         private void CloseWriter()
         {
-            if (_filewriter != null)
+            if (_filewriter != null && IsOpen)
             {
                 _filewriter.WriteLine( "\r\n\r\n" ); //add some blank lines to the end
                 _filewriter.Flush(); //flush the writer before the next write
