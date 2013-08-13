@@ -49,15 +49,18 @@ namespace FileLog
             CloseWriter();
         }
 
-        [MethodImpl( MethodImplOptions.Synchronized )]
-        public void Log( string logline )
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public void Log(string logline)
         {
             DateTime logTime = DateTime.Now;
 
-            if ( logTime.DayOfYear != CurrentStreamDay.DayOfYear || !IsOpen )
+            if (_usedate)
             {
-                CloseWriter();
-                CreateNewWriter( null );
+                if (logTime.DayOfYear != CurrentStreamDay.DayOfYear || !IsOpen)
+                {
+                    CloseWriter();
+                    CreateNewWriter(null);
+                }
             }
 
             if ( IsOpen )
