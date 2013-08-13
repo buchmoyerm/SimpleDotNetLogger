@@ -122,7 +122,8 @@ namespace FileLog
 
             try
             {
-                _filewriter = new StreamWriter(LogFileName, true, Encoding.UTF8);
+                //use date parameter will determine if we should append or start new
+                _filewriter = new StreamWriter(LogFileName, _usedate, Encoding.UTF8);
             }
             catch (UnauthorizedAccessException)
             {
