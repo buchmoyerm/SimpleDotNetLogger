@@ -9,11 +9,25 @@ namespace FileLog
     {
         public Logger(string filename)
         {
-            LogBaseName = filename;
-            LogDirectory = @"Logs\";
+            Init(filename, @"Logs\" , true);
+        }
+
+        public Logger(string filename, bool? usedate)
+        {
+            Init(filename, @"Logs\", usedate);
         }
 
         public Logger(string filename, string directory)
+        {
+            Init(filename, directory, true);
+        }
+
+        public Logger(string filename, string directory, bool? usedate)
+        {
+            Init(filename, directory, usedate);
+        }
+
+        private void Init(string filename, string directory, bool? usedate)
         {
             LogBaseName = filename;
 
@@ -22,6 +36,11 @@ namespace FileLog
             if (LogDirectory[LogDirectory.Length - 1] != '\\')
             {
                 LogDirectory += @"\";
+            }
+
+            if (usedate.HasValue)
+            {
+                _usedate = usedate.Value;
             }
         }
 
@@ -61,18 +80,33 @@ namespace FileLog
 
         private void CreateNewWriter(int? filenum)
         {
-            CurrentStreamDay = DateTime.Now;
-            if (filenum.HasValue)
+            if (_usedate)
             {
-                LogFileName = string.Format("{0}{1}({2})_{3:yyyy-M-d}.txt", LogDirectory, LogBaseName, filenum,
-                                            CurrentStreamDay);
+                CurrentStreamDay = DateTime.Now;
+                if (filenum.HasValue)
+                {
+                    LogFileName = string.Format("{0}{1}({2})_{3:yyyy-M-d}.txt", LogDirectory, LogBaseName, filenum,
+                                                CurrentStreamDay);
+                }
+                else
+                {
+                    LogFileName = string.Format("{0}{1}_{2:yyyy-M-d}.txt", LogDirectory, LogBaseName, CurrentStreamDay);
+                    filenum = 0; //just in case we can't open this file
+                }
             }
             else
             {
-                LogFileName = string.Format( "{0}{1}_{2:yyyy-M-d}.txt", LogDirectory, LogBaseName, CurrentStreamDay );
-                filenum = 0; //just in case we can't open this file
+                if (filenum.HasValue)
+                {
+                    LogFileName = string.Format("{0}{1}({2}).txt", LogDirectory, LogBaseName, filenum);
+                }
+                else
+                {
+                    LogFileName = string.Format("{0}{1}.txt", LogDirectory, LogBaseName);
+                    filenum = 0; //just in case we can't open this file
+                }
             }
-            
+
 
             if ( !Directory.Exists( LogDirectory ) )
             {
@@ -130,6 +164,7 @@ namespace FileLog
         }
 
         private StreamWriter _filewriter;
+        private bool _usedate;
         private string LogFileName { get; set; }
         private string LogBaseName { get; set; }
         private DateTime CurrentStreamDay { get; set; }
