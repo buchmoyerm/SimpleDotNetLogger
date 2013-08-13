@@ -62,6 +62,10 @@ namespace FileLog
                     CreateNewWriter(null);
                 }
             }
+            else if (!IsOpen)
+            {
+                CreateNewWriter(null);
+            }
 
             if ( IsOpen )
             {
