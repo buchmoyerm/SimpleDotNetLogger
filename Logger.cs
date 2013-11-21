@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -89,6 +90,7 @@ namespace FileLog
         {
             if (_usedate)
             {
+                DeleteOldFiles();
                 CurrentStreamDay = DateTime.Now;
                 if (filenum.HasValue)
                 {
@@ -138,6 +140,21 @@ namespace FileLog
                 _filewriter = null;
             }
             
+        }
+
+        private void DeleteOldFiles()
+        {
+            var deleteBefore = DateTime.Today.AddDays(-7);
+
+            var files = Directory.GetFiles(LogDirectory).Where(file => file.Contains(LogBaseName)).ToList();
+            foreach (var file in files)
+            {
+                var f = new FileInfo(file);
+                if (f.LastWriteTime < deleteBefore)
+                {
+                    f.Delete();
+                }
+            }
         }
 
         [MethodImpl( MethodImplOptions.Synchronized )]
