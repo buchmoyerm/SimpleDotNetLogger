@@ -3,6 +3,7 @@ using System.Linq;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 
 namespace FileLog
 {
@@ -30,6 +31,8 @@ namespace FileLog
 
         private void Init(string filename, string directory, bool? usedate)
         {
+            _logQueue = new BlockingQueue<string>();
+
             LogBaseName = filename;
 
             LogDirectory = directory;
@@ -55,8 +58,21 @@ namespace FileLog
             CloseWriter();
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public void Log(string logline)
+        {
+            DateTime logTime = DateTime.Now;
+            WriteLine(string.Format("{0:G}:\t{1}", logTime, logline));
+        }
+
+        public void QueueLog(string logline)
+        {
+            DateTime logTime = DateTime.Now;
+            _logQueue.Enqueue(string.Format("{0:G}:\t{1}", logTime, logline));
+            ProcessQueue();
+        }
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        private void WriteLine(string line)
         {
             DateTime logTime = DateTime.Now;
 
@@ -73,10 +89,9 @@ namespace FileLog
                 CreateNewWriter(null);
             }
 
-            if ( IsOpen )
+            if (IsOpen)
             {
-                string line = string.Format( "{0:G}:\t{1}", logTime, logline );
-                _filewriter.WriteLine( line );
+                _filewriter.WriteLine(line);
                 _filewriter.Flush(); //flush the writer before the next write
             }
         }
@@ -89,6 +104,37 @@ namespace FileLog
         public void Log( string line, Exception ex )
         {
             Log(line + " " + ExceptionLogLine(ex));
+        }
+
+        public void QueueLog( Exception ex )
+        {
+            QueueLog(ExceptionLogLine(ex));
+        }
+
+        public void QueueLog( string line, Exception ex)
+        {
+            QueueLog(line + " " + ExceptionLogLine(ex));
+        }
+
+        private void ProcessQueue()
+        {
+            if (_processQueueThread == null)
+            {
+                _processQueueThread = new Thread(
+                    () =>
+                    {
+                        while(true)
+                        {
+                            WriteLine(_logQueue.Dequeue());
+                        }
+                    });
+                _processQueueThread.IsBackground = true;
+            }
+
+            if (_processQueueThread.IsAlive)
+                return;
+
+            _processQueueThread.Start();
         }
 
         private void CreateNewWriter(int? filenum)
@@ -189,6 +235,9 @@ namespace FileLog
 
         private StreamWriter _filewriter;
         private bool _usedate;
+        private BlockingQueue<string> _logQueue;
+        private Thread _processQueueThread;
+
         private string LogFileName { get; set; }
         private string LogBaseName { get; set; }
         private DateTime CurrentStreamDay { get; set; }
