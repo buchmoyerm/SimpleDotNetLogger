@@ -67,7 +67,7 @@ namespace FileLog
         public void QueueLog(string logline)
         {
             DateTime logTime = DateTime.Now;
-            _logQueue.Enqueue(string.Format("{0:G}:\t{1}", logTime, logline));
+            _logQueue.Enqueue(string.Format("Queue {0:G}:\t{1}", logTime, logline));
             ProcessQueue();
         }
 
