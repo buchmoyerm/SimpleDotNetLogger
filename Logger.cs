@@ -39,6 +39,11 @@ namespace FileLog
                 LogDirectory += @"\";
             }
 
+            if (!Directory.Exists(LogDirectory))
+            {
+                Directory.CreateDirectory(LogDirectory);
+            }
+
             if (usedate.HasValue)
             {
                 _usedate = usedate.Value;
@@ -114,12 +119,6 @@ namespace FileLog
                     LogFileName = string.Format("{0}{1}.txt", LogDirectory, LogBaseName);
                     filenum = 0; //just in case we can't open this file
                 }
-            }
-
-
-            if ( !Directory.Exists( LogDirectory ) )
-            {
-                Directory.CreateDirectory( LogDirectory );
             }
 
             try
