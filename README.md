@@ -1,6 +1,6 @@
-This logger is written using c# .net version 3.5
+This logger is written using c# .net version 4.0 (But should compile under 3.5)
 
-This repo only contains the c# [visual studio 2008] project file for the logger.
+This repo only contains the c# [visual studio 2013] project file for the logger.
 
 When built it should create a .dll that can be referenced and the logger can be used.
 
