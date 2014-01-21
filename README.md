@@ -17,6 +17,11 @@ namespace MyApp
 			try
 			{
 				MyLogger.Log("Test log line");
+
+				//These lines will be added to the queue which gets written from a seperate thread
+				MyLogger.QueueLog("Queued line");
+				MyLogger.QueueLog("Another Queued line");
+
 				
 				//should throw DivideByZeroException
 				int num1 = 3;
@@ -25,6 +30,7 @@ namespace MyApp
 			}
 			catch (Exception ex)
 			{
+				MyLogger.QueueLog("Here we can queue exception logs too", ex);
 				MyLogger.Log("Error Caught", ex);
 			}
 		}
