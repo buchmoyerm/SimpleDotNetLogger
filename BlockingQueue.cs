@@ -7,7 +7,7 @@ namespace FileLog
     /// Queue for a efficient enqueueing and dequeueing between different threads
     /// </summary>
     /// <typeparam name="T">type of ojbect in queue</typeparam>
-    class BlockingQueue<T>
+    internal class BlockingQueue<T>
     {
         private readonly Queue<T> _queue = new Queue<T>();
 
@@ -23,6 +23,7 @@ namespace FileLog
                 }
             }
         }
+
         //blocks when queue is empty
         public T Dequeue()
         {

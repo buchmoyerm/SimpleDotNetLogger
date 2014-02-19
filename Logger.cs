@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -11,7 +11,7 @@ namespace FileLog
     {
         public Logger(string filename)
         {
-            Init(filename, @"Logs\" , true);
+            Init(filename, @"Logs\", true);
         }
 
         public Logger(string filename, bool? usedate)
@@ -96,22 +96,22 @@ namespace FileLog
             }
         }
 
-        public void Log( Exception ex )
+        public void Log(Exception ex)
         {
             Log(ExceptionLogLine(ex));
         }
 
-        public void Log( string line, Exception ex )
+        public void Log(string line, Exception ex)
         {
             Log(line + " " + ExceptionLogLine(ex));
         }
 
-        public void QueueLog( Exception ex )
+        public void QueueLog(Exception ex)
         {
             QueueLog(ExceptionLogLine(ex));
         }
 
-        public void QueueLog( string line, Exception ex)
+        public void QueueLog(string line, Exception ex)
         {
             QueueLog(line + " " + ExceptionLogLine(ex));
         }
@@ -123,7 +123,7 @@ namespace FileLog
                 _processQueueThread = new Thread(
                     () =>
                     {
-                        while(true)
+                        while (true)
                         {
                             WriteLine(_logQueue.Dequeue());
                         }
@@ -178,13 +178,12 @@ namespace FileLog
             }
             catch (IOException)
             {
-                CreateNewWriter( ++filenum );
+                CreateNewWriter(++filenum);
             }
             catch (Exception)
             {
                 _filewriter = null;
             }
-            
         }
 
         private void DeleteOldFiles()
@@ -202,12 +201,12 @@ namespace FileLog
             }
         }
 
-        [MethodImpl( MethodImplOptions.Synchronized )]
+        [MethodImpl(MethodImplOptions.Synchronized)]
         private void CloseWriter()
         {
             if (_filewriter != null && IsOpen)
             {
-                _filewriter.WriteLine( "\r\n\r\n" ); //add some blank lines to the end
+                _filewriter.WriteLine("\r\n\r\n"); //add some blank lines to the end
                 _filewriter.Flush(); //flush the writer before the next write
 
                 _filewriter.Close();
@@ -239,8 +238,11 @@ namespace FileLog
         private Thread _processQueueThread;
 
         private string LogFileName { get; set; }
+
         private string LogBaseName { get; set; }
+
         private DateTime CurrentStreamDay { get; set; }
+
         private string LogDirectory { get; set; }
     }
 }
