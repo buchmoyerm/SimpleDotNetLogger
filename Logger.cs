@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace FileLog
 {
-    public class Logger : IDisposable
+    public sealed class Logger : IDisposable
     {
         public Logger(string filename)
         {
@@ -218,6 +218,7 @@ namespace FileLog
         public void Dispose()
         {
             CloseWriter();
+            GC.SuppressFinalize(this);
         }
 
         public bool IsOpen
