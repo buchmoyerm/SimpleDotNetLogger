@@ -218,6 +218,7 @@ namespace FileLog
         {
             CloseWriter();
             GC.SuppressFinalize(this);
+            _processQueueThread.Abort();
         }
 
         public bool IsOpen
