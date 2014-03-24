@@ -123,9 +123,16 @@ namespace FileLog
                 _processQueueThread = new Thread(
                     () =>
                     {
-                        while (true)
+                        try
                         {
-                            WriteLine(_logQueue.Dequeue());
+                            while (true)
+                            {
+                                WriteLine(_logQueue.Dequeue());
+                            }
+                        }
+                        catch (ThreadAbortException)
+                        {
+                            _processQueueThread = null;
                         }
                     });
                 _processQueueThread.IsBackground = true;
@@ -217,8 +224,14 @@ namespace FileLog
         public void Dispose()
         {
             CloseWriter();
+
+            if (_processQueueThread != null && _processQueueThread.IsAlive)
+            {
+                _processQueueThread.Abort();
+                _processQueueThread = null;
+            }
+
             GC.SuppressFinalize(this);
-            _processQueueThread.Abort();
         }
 
         public bool IsOpen
