@@ -99,21 +99,41 @@ namespace FileLog
         public void Log(Exception ex)
         {
             Log(ExceptionLogLine(ex));
+
+            if (ex.InnerException != null)
+            {
+                Log("Inner Exception", ex.InnerException);
+            }
         }
 
         public void Log(string line, Exception ex)
         {
             Log(line + " " + ExceptionLogLine(ex));
+
+            if (ex.InnerException != null)
+            {
+                Log("Inner Exception", ex.InnerException);
+            }
         }
 
         public void QueueLog(Exception ex)
         {
             QueueLog(ExceptionLogLine(ex));
+
+            if (ex.InnerException != null)
+            {
+                QueueLog("Inner Exception", ex.InnerException);
+            }
         }
 
         public void QueueLog(string line, Exception ex)
         {
             QueueLog(line + " " + ExceptionLogLine(ex));
+
+            if (ex.InnerException != null)
+            {
+                QueueLog("Inner Exception", ex.InnerException);
+            }
         }
 
         private void ProcessQueue()
