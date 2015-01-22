@@ -11,25 +11,25 @@ namespace FileLog
     {
         public Logger(string filename)
         {
-            Init(filename, @"Logs\", true);
+            Init(filename, @"Logs\", true, true);
         }
 
         public Logger(string filename, bool? usedate)
         {
-            Init(filename, @"Logs\", usedate);
+            Init(filename, @"Logs\", usedate, true);
         }
 
         public Logger(string filename, string directory)
         {
-            Init(filename, directory, true);
+            Init(filename, directory, true, true);
         }
 
-        public Logger(string filename, string directory, bool? usedate)
+        public Logger(string filename, string directory, bool? usedate, bool? showLinePrefix)
         {
-            Init(filename, directory, usedate);
+            Init(filename, directory, usedate, showLinePrefix);
         }
 
-        private void Init(string filename, string directory, bool? usedate)
+        private void Init(string filename, string directory, bool? usedate, bool? showLinePrefix)
         {
             _logQueue = new BlockingQueue<string>();
 
@@ -51,6 +51,11 @@ namespace FileLog
             {
                 _usedate = usedate.Value;
             }
+
+            if (showLinePrefix.HasValue)
+            {
+                _usePrefix = showLinePrefix.Value;
+            }
         }
 
         public void Close()
@@ -60,14 +65,27 @@ namespace FileLog
 
         public void Log(string logline)
         {
-            DateTime logTime = DateTime.Now;
-            WriteLine(string.Format("{0:G}:\t{1}", logTime, logline));
+            if (_usePrefix)
+            {
+                DateTime logTime = DateTime.Now;
+                WriteLine(string.Format("{0:G}:\t{1}", logTime, logline));
+            }
+            {
+                WriteLine(logline);
+            }
         }
 
         public void QueueLog(string logline)
         {
-            DateTime logTime = DateTime.Now;
-            _logQueue.Enqueue(string.Format("Queue {0:G}:\t{1}", logTime, logline));
+            if (_usePrefix)
+            {
+                DateTime logTime = DateTime.Now;
+                _logQueue.Enqueue(string.Format("Queue {0:G}:\t{1}", logTime, logline));
+            }
+            else
+            {
+                _logQueue.Enqueue(logline);
+            }
             ProcessQueue();
         }
 
@@ -92,7 +110,6 @@ namespace FileLog
             if (IsOpen)
             {
                 _filewriter.WriteLine(line);
-                _filewriter.Flush(); //flush the writer before the next write
             }
         }
 
@@ -198,6 +215,7 @@ namespace FileLog
             {
                 //use date parameter will determine if we should append or start new
                 _filewriter = new StreamWriter(LogFileName, _usedate, Encoding.UTF8);
+                _filewriter.AutoFlush = true;
             }
             catch (UnauthorizedAccessException)
             {
@@ -234,7 +252,6 @@ namespace FileLog
             if (_filewriter != null && IsOpen)
             {
                 _filewriter.WriteLine("\r\n\r\n"); //add some blank lines to the end
-                _filewriter.Flush(); //flush the writer before the next write
 
                 _filewriter.Close();
                 _filewriter = null;
@@ -269,6 +286,7 @@ namespace FileLog
 
         private StreamWriter _filewriter;
         private bool _usedate;
+        private bool _usePrefix;
         private BlockingQueue<string> _logQueue;
         private Thread _processQueueThread;
 
