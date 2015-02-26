@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -153,16 +154,18 @@ namespace FileLog
             }
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         private void ProcessQueue()
         {
             if (_processQueueThread == null)
             {
+                _processThreadExited = new ManualResetEvent(false);
                 _processQueueThread = new Thread(
                     () =>
                     {
                         try
                         {
-                            while (true)
+                            while (!_disposed)
                             {
                                 WriteLine(_logQueue.Dequeue());
                             }
@@ -171,8 +174,13 @@ namespace FileLog
                         {
                             _processQueueThread = null;
                         }
+                        finally
+                        {
+                            _processThreadExited.Set();
+                        }
                     });
                 _processQueueThread.IsBackground = true;
+                _processQueueThread.Name = string.Format("{0} QueueLogger thread", this.LogBaseName);
             }
 
             if (_processQueueThread.IsAlive)
@@ -258,15 +266,31 @@ namespace FileLog
             }
         }
 
+        private bool _disposed = false;
         public void Dispose()
         {
-            CloseWriter();
-
+            _disposed = true;
             if (_processQueueThread != null && _processQueueThread.IsAlive)
             {
-                _processQueueThread.Abort();
+                _logQueue.Clear();
+                _logQueue.Enqueue("<end queue>"); //one last message to exit the process thread
+                //_processQueueThread.Abort();
+                //_processQueueThread = null;
+
+                if (_processThreadExited.WaitOne(TimeSpan.FromSeconds(1)))
+                {
+                    //thread finished running
+                    _processQueueThread.Join();
+                }
+                else
+                {
+                    //thread failed to exit
+                    _processQueueThread.Abort();
+                }
                 _processQueueThread = null;
             }
+
+            CloseWriter();
 
             GC.SuppressFinalize(this);
         }
@@ -289,6 +313,7 @@ namespace FileLog
         private bool _usePrefix;
         private BlockingQueue<string> _logQueue;
         private Thread _processQueueThread;
+        private ManualResetEvent _processThreadExited;
 
         private string LogFileName { get; set; }
 
